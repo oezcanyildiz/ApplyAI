@@ -143,7 +143,7 @@ applyai/
 | Week 3 | PDF Generator, Tracker Service, Frontend | ⏳ Planned |
 | Week 4 | Kubernetes Deployment, Cloud, Polish | ⏳ Planned |
 
-Follow my daily progress on [LinkedIn](https://www.linkedin.com/in/YOUR_PROFILE) 📣
+Follow my daily progress on [LinkedIn](https://www.linkedin.com/in/ozcanyildiz-de/) 📣
 
 ---
 
@@ -158,7 +158,7 @@ Feel free to open an issue or reach out on LinkedIn.
 
 **Ozcan Yildiz** — Junior Backend Developer  
 📧 oezcan.yildiz95@gmail.com  
-🔗 [LinkedIn](https://www.linkedin.com/in/YOUR_PROFILE)  
+🔗 [LinkedIn](https://www.linkedin.com/in/ozcanyildiz-de/)  
 🌐 [boardly.one](https://boardly.one)
 
 ---
@@ -218,7 +218,7 @@ in Sekunden eine vollständig maßgeschneiderte Bewerbungsmappe – powered by C
 
 **Ozcan Yildiz** — Junior Backend-Entwickler  
 📧 oezcan.yildiz95@gmail.com  
-🔗 [LinkedIn](https://www.linkedin.com/in/YOUR_PROFILE)  
+🔗 [LinkedIn](https://www.linkedin.com/in/ozcanyildiz-de/)  
 🌐 [boardly.one](https://boardly.one)
 
 ---
