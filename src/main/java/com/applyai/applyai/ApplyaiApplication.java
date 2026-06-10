@@ -1,0 +1,13 @@
+package com.applyai.applyai;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ApplyaiApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ApplyaiApplication.class, args);
+	}
+
+}
