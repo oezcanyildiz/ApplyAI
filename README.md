@@ -172,3 +172,57 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 <p align="center">
   <i>Built with ❤️ and 150 rejections.</i>
 </p>
+
+
+---
+
+## 🇩🇪 Deutsche Version
+
+# 🚀 ApplyAI
+
+> **KI-gestützter Bewerbungsmappe-Generator & Bewerbungs-Tracker**  
+> Entwickelt mit Java 21 · Spring Boot 3.4 · PostgreSQL · Kubernetes · Claude AI
+
+---
+
+## 💡 Warum ApplyAI?
+
+Nach über **150 Bewerbungen** und unzähligen Stunden damit, Lebensläufe und 
+Anschreiben manuell anzupassen, habe ich das Tool gebaut, das ich mir gewünscht hätte.
+
+**ApplyAI** liest deinen Lebenslauf, analysiert die Stellenanzeige und erstellt 
+in Sekunden eine vollständig maßgeschneiderte Bewerbungsmappe – powered by Claude AI.
+
+---
+
+## ✨ Funktionen
+
+### 📄 KI Bewerbungsmappe Generator
+- Lebenslauf (PDF) hochladen
+- Stellenanzeige einfügen oder Link angeben
+- Claude AI analysiert die Anforderungen und passt deinen Lebenslauf an
+- Generiert ein personalisiertes Anschreiben
+- Lädt eine komplette, professionelle Bewerbungsmappe als PDF herunter
+- **Live-Fortschritt via WebSocket**
+
+### 📊 Bewerbungs-Tracker
+- Jede generierte Bewerbung wird automatisch gespeichert
+- Status verfolgen: `Beworben` → `Gespräch` → `Zusage / Absage`
+- Ansprechpartner, Termine und Dokumente an einem Ort
+- Dashboard mit Statistiken
+- Echtzeit-Benachrichtigungen via WebSocket
+
+---
+
+## 👨‍💻 Autor
+
+**Ozcan Yildiz** — Junior Backend-Entwickler  
+📧 oezcan.yildiz95@gmail.com  
+🔗 [LinkedIn](https://www.linkedin.com/in/YOUR_PROFILE)  
+🌐 [boardly.one](https://boardly.one)
+
+---
+
+<p align="center">
+  <i>Entwickelt mit ❤️ und 150 Absagen.</i>
+</p>
