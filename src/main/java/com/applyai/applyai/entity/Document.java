@@ -1,6 +1,7 @@
 package com.applyai.applyai.entity;
 
-import com.applyai.applyai.enums.ApplicationStatus;
+import com.applyai.applyai.enums.DocumentType;
+import com.applyai.applyai.enums.FileFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,43 +13,45 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "applications")
-public class ApplicationEntity extends BaseEntity {
+@Table(name = "documents")
+public class Document extends BaseEntity {
 
-    @Id
+      @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false)
-    @NotBlank
-    private String companyName;
 
     @Column(nullable = false)
-    @NotBlank
-    private String jobTitle;
+    private String fileName;      // "lebenslauf.pdf"
 
-    private String contactPerson;
+    @Column(nullable = false)
+    private String filePath;      // "/uploads/user123/lebenslauf.pdf"
 
-    private String jobPostingUrl;
+    private Long fileSize;        // Dateigröße in Bytes
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApplicationStatus status;
+    private DocumentType documentType;  // Was ist es?
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FileFormat fileFormat;      // Welches Format?
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "application_id")
+    private Application application; // optional, wenn zu Bewerbung gehört
 }
+
