@@ -1,7 +1,7 @@
 package com.applyai.applyai.enums;
 
 public enum Role {
-      USER,
+    USER,
     ADMIN
 
 }
