@@ -1,0 +1,126 @@
+package com.applyai.applyai.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.applyai.applyai.dto.request.CreateApplicationRequest;
+import com.applyai.applyai.dto.request.UpdateApplicationRequest;
+import com.applyai.applyai.dto.response.ApplicationResponse;
+import com.applyai.applyai.entity.Application;
+import com.applyai.applyai.entity.Document;
+import com.applyai.applyai.entity.User;
+import com.applyai.applyai.enums.ApplicationStatus;
+import com.applyai.applyai.exception.NotFoundException;
+import com.applyai.applyai.mapper.ApplicationMapper;
+import com.applyai.applyai.repository.ApplicationRepository;
+import com.applyai.applyai.repository.DocumentRepository;
+import com.applyai.applyai.repository.UserRepository;
+import com.applyai.applyai.security.SecurityUtil;
+import com.applyai.applyai.service.IApplicationService;
+
+@Service
+public class ApplicationServiceImpl implements IApplicationService {
+
+    private final ApplicationRepository applicationRepository;
+    private final UserRepository userRepository;
+    private final ApplicationMapper applicationMapper;
+    private final DocumentRepository documentRepository;
+    
+    public ApplicationServiceImpl(
+            ApplicationRepository applicationRepository,
+            UserRepository userRepository,
+            ApplicationMapper applicationMapper,
+            DocumentRepository documentRepository) {
+        this.applicationRepository = applicationRepository;
+        this.userRepository = userRepository;
+        this.applicationMapper = applicationMapper;
+        this.documentRepository = documentRepository;
+    }
+
+    @Override
+    public ApplicationResponse createApplication(CreateApplicationRequest request) {
+
+        // 1. Eingeloggten User holen
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        // 2. Resume Document holen (falls angegeben)
+        Document resumeDocument = null;
+        if (request.getResumeDocumentId() != null) {
+            resumeDocument = documentRepository.findById(request.getResumeDocumentId())
+                    .orElseThrow(() -> new NotFoundException("Document not found"));
+        }
+
+        // 3. Application Entity manuell befüllen
+        Application application = new Application();
+        application.setCompanyName(request.getCompanyName());
+        application.setJobTitle(request.getJobTitle());
+        application.setContactPerson(request.getContactPerson());
+        application.setJobPostingUrl(request.getJobPostingUrl());
+        application.setJobPostingText(request.getJobPostingText());
+        application.setCoverLetterTemplate(request.getCoverLetterTemplate());
+        application.setResumeDocument(resumeDocument);
+        application.setUser(user);
+        application.setStatus(ApplicationStatus.DRAFT); // immer DRAFT am Anfang
+
+        // 4. Speichern
+        Application savedApplication = applicationRepository.save(application);
+
+        // 5. Response zurückgeben
+        return applicationMapper.toResponse(savedApplication);
+    }
+
+    @Override
+    public ApplicationResponse updateApplication(Long id, UpdateApplicationRequest request) {
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        // 1. Application holen
+        Application application = applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+
+        // 3. Felder aktualisieren (nur wenn sie im Request gesetzt sind)
+        if (request.getContactPerson() != null) {
+            application.setContactPerson(request.getContactPerson());
+        }
+        if (request.getStatus() != null) {
+            application.setStatus(request.getStatus());
+        }
+        if (request.getInterviewDate() != null) {
+            application.setInterviewDate(request.getInterviewDate());
+        }
+
+        // 4. Speichern
+        Application updatedApplication = applicationRepository.save(application);
+
+        // 5. Response zurückgeben
+        return applicationMapper.toResponse(updatedApplication);
+
+    }
+
+    @Override
+    public ApplicationResponse getApplicationById(Long id) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Application application = applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+        return applicationMapper.toResponse(application);
+    }
+
+    @Override
+    public List<ApplicationResponse> getAllApplications() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        return applicationRepository.findByUserId(userId)
+                .stream()
+                .map(applicationMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public void deleteApplication(Long id) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Application application = applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException("Application not found"));
+        applicationRepository.delete(application);
+    }
+}
