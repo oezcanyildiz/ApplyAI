@@ -1,15 +1,19 @@
 package com.applyai.applyai.security;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
-@Component
+import com.applyai.applyai.exception.UnauthorizedException;
+
+
 public class SecurityUtil {
 
     public static Long getCurrentUserId() {
-        return (Long) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getCredentials();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getCredentials() == null) {
+            throw new UnauthorizedException("Not authenticated");
+        }
+        return (Long) auth.getCredentials();
     }
 
     public static String getCurrentUserEmail() {
