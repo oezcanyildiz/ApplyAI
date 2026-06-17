@@ -19,6 +19,11 @@ import com.applyai.applyai.repository.UserRepository;
 import com.applyai.applyai.security.SecurityUtil;
 import com.applyai.applyai.service.IApplicationService;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
 @Service
 public class ApplicationServiceImpl implements IApplicationService {
 
@@ -38,19 +43,28 @@ public class ApplicationServiceImpl implements IApplicationService {
         this.documentRepository = documentRepository;
     }
 
+    @Transactional
     @Override
     public ApplicationResponse createApplication(CreateApplicationRequest request) {
 
         // 1. Eingeloggten User holen
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> {
+                    log.warn("User not found in DB for userId: {}", userId);
+                    return new NotFoundException("User not found");
+            });
 
         // 2. Resume Document holen (falls angegeben)
         Document resumeDocument = null;
         if (request.getResumeDocumentId() != null) {
-            resumeDocument = documentRepository.findById(request.getResumeDocumentId())
-                    .orElseThrow(() -> new NotFoundException("Document not found"));
+            resumeDocument = documentRepository.findByIdAndUserId(
+                    request.getResumeDocumentId(), userId)
+                    .orElseThrow(() -> {
+                        log.warn("Document not found in DB for userId: {}", userId);
+                        return new NotFoundException("Document not found");
+                        }
+                    );
         }
 
         // 3. Application Entity manuell befüllen
@@ -72,13 +86,13 @@ public class ApplicationServiceImpl implements IApplicationService {
         return applicationMapper.toResponse(savedApplication);
     }
 
+    @Transactional
     @Override
     public ApplicationResponse updateApplication(Long id, UpdateApplicationRequest request) {
         Long userId = SecurityUtil.getCurrentUserId();
 
         // 1. Application holen
-        Application application = applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Application application = findApplicationByIdAndUserId(id, userId);
 
         // 3. Felder aktualisieren (nur wenn sie im Request gesetzt sind)
         if (request.getContactPerson() != null) {
@@ -99,28 +113,41 @@ public class ApplicationServiceImpl implements IApplicationService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ApplicationResponse getApplicationById(Long id) {
         Long userId = SecurityUtil.getCurrentUserId();
-        Application application = applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Application application = findApplicationByIdAndUserId(id, userId);
         return applicationMapper.toResponse(application);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ApplicationResponse> getAllApplications() {
         Long userId = SecurityUtil.getCurrentUserId();
+        log.info("Fetching all applications for userId: {}", userId);
         return applicationRepository.findByUserId(userId)
                 .stream()
                 .map(applicationMapper::toResponse)
                 .toList();
     }
 
+    @Transactional
     @Override
     public void deleteApplication(Long id) {
         Long userId = SecurityUtil.getCurrentUserId();
-        Application application = applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+        Application application = findApplicationByIdAndUserId(id, userId);
         applicationRepository.delete(application);
     }
+
+
+    // ↓ Hilfsmethode INNERHALB der Klasse!
+    private Application findApplicationByIdAndUserId(Long id, Long userId) {
+        return applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> {
+                    log.warn("Application not found for applicationId: {}, userId: {}", id, userId);
+                    return new NotFoundException("Application not found");
+                });
+
+            }
 }

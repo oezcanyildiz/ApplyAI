@@ -15,6 +15,11 @@ import com.applyai.applyai.repository.UserRepository;
 import com.applyai.applyai.security.JwtUtil;
 import com.applyai.applyai.service.IAuthService;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
 @Service
 public class AuthServiceImpl implements IAuthService {
 
@@ -30,10 +35,14 @@ public class AuthServiceImpl implements IAuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     @Override
     public RegisterResponse register(RegisterRequest request) {
 
+        log.info("Register attempt for email: {}", request.getEmail());
+        
         if(userRepository.existsByEmail(request.getEmail())){
+            log.warn("Registration failed - email already exists: {}", request.getEmail());
             throw new ConflictException("Email already exists");
         }
 
@@ -46,6 +55,8 @@ public class AuthServiceImpl implements IAuthService {
         user.setRole(Role.USER); // ← IMMER hartkodiert im Service, NICHT vom Client
         User savedUser =userRepository.save(user);
 
+        log.info("User registered successfully: id={}, email={}", savedUser.getId(), savedUser.getEmail());
+
         return new RegisterResponse(
             "Registration successful. Please log in.",
             savedUser.getEmail(),
@@ -53,20 +64,24 @@ public class AuthServiceImpl implements IAuthService {
         
     }
 
+    @Transactional(readOnly = true)
     @Override
     public AuthResponse login(LoginRequest request) {
-
+        log.info("Login attempt for email: {}", request.getEmail());
+        
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
-
+                .orElseThrow(() -> {
+                    log.warn("Login failed - email not found: {}", request.getEmail());
+                    return new UnauthorizedException("Invalid email or password");
+                });
+                
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("Login failed - wrong password for email: {}", request.getEmail());
             throw new UnauthorizedException("Invalid email or password");
         }
-
+        
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getId());
-
-        return new AuthResponse(token, user.getId(), user.getFirstName() , user.getLastName(), user.getEmail());
+        log.info("User logged in successfully: id={}", user.getId());
+        return new AuthResponse(token, user.getId(), user.getFirstName(), user.getLastName(), user.getEmail());
     }
-
-
 }
