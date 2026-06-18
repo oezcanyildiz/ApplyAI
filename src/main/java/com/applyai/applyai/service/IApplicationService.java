@@ -18,4 +18,5 @@ public interface IApplicationService {
     
     void deleteApplication(Long id);
 
+    ApplicationResponse generateApplication(Long id);
 }

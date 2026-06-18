@@ -22,7 +22,8 @@ public class ApplicationMapper {
                     : null,
                 application.getStatus(),
                 application.getCreatedAt(),
-                application.getUpdatedAt()
+                application.getUpdatedAt(),
+                application.getGeneratedContent()
         );
     }
 }
