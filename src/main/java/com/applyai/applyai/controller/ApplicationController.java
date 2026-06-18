@@ -59,4 +59,9 @@ public class ApplicationController {
         applicationService.deleteApplication(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/generate")
+    public ResponseEntity<ApplicationResponse> generateApplication(@PathVariable Long id) {
+        return ResponseEntity.ok(applicationService.generateApplication(id));
+    }
 }

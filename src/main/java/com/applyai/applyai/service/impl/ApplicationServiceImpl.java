@@ -11,13 +11,16 @@ import com.applyai.applyai.entity.Application;
 import com.applyai.applyai.entity.Document;
 import com.applyai.applyai.entity.User;
 import com.applyai.applyai.enums.ApplicationStatus;
+import com.applyai.applyai.exception.BadRequestException;
 import com.applyai.applyai.exception.NotFoundException;
 import com.applyai.applyai.mapper.ApplicationMapper;
 import com.applyai.applyai.repository.ApplicationRepository;
 import com.applyai.applyai.repository.DocumentRepository;
 import com.applyai.applyai.repository.UserRepository;
 import com.applyai.applyai.security.SecurityUtil;
+import com.applyai.applyai.service.AiService;
 import com.applyai.applyai.service.IApplicationService;
+import com.applyai.applyai.service.PdfExtractorService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,16 +34,25 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final UserRepository userRepository;
     private final ApplicationMapper applicationMapper;
     private final DocumentRepository documentRepository;
+    private final PdfExtractorService pdfExtractorService;
+    private final AiService aiService;
     
     public ApplicationServiceImpl(
             ApplicationRepository applicationRepository,
             UserRepository userRepository,
             ApplicationMapper applicationMapper,
-            DocumentRepository documentRepository) {
+            DocumentRepository documentRepository,
+            PdfExtractorService pdfExtractorService,
+        AiService aiService
+
+        
+        ) {
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.applicationMapper = applicationMapper;
         this.documentRepository = documentRepository;
+        this.pdfExtractorService = pdfExtractorService;
+        this.aiService = aiService;
     }
 
     @Transactional
@@ -138,6 +150,37 @@ public class ApplicationServiceImpl implements IApplicationService {
         Long userId = SecurityUtil.getCurrentUserId();
         Application application = findApplicationByIdAndUserId(id, userId);
         applicationRepository.delete(application);
+    }
+
+    @Transactional
+    @Override
+    public ApplicationResponse generateApplication(Long id) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        
+        // 1. Application holen
+        Application application = findApplicationByIdAndUserId(id, userId);
+        
+        // 2. Resume Text extrahieren
+        if (application.getResumeDocument() == null) {
+            throw new BadRequestException("No resume document attached to this application!");
+        }
+        String resumeText = pdfExtractorService.extractTextFromPdf(
+                application.getResumeDocument().getFilePath());
+        
+        // 3. Claude API aufrufen
+        String aiResult = aiService.generateApplicationDocuments(
+                resumeText,
+                application.getJobPostingText(),
+                application.getCoverLetterTemplate());
+        
+        // 4. Ergebnis speichern ← NEU
+        application.setGeneratedContent(aiResult);
+        application.setStatus(ApplicationStatus.APPLIED);
+        applicationRepository.save(application);
+        
+        log.info("AI generation completed for applicationId: {}", id);
+        
+        return applicationMapper.toResponse(application);
     }
 
 

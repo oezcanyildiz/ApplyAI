@@ -63,5 +63,7 @@ public class Application extends BaseEntity {
     @JoinColumn(name = "resume_document_id")
     private Document resumeDocument; // welches Resume wurde verwendet
 
+    @Column(columnDefinition = "TEXT")
+    private String generatedContent; // KI-Ergebnis temporär speichern
 
 }

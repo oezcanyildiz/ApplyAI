@@ -21,4 +21,5 @@ public class ApplicationResponse {
     private ApplicationStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String generatedContent; 
 }
