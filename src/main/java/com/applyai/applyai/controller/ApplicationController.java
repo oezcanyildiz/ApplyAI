@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.applyai.applyai.dto.request.CreateApplicationRequest;
 import com.applyai.applyai.dto.request.UpdateApplicationRequest;
 import com.applyai.applyai.dto.response.ApplicationResponse;
+import com.applyai.applyai.security.SecurityUtil;
 import com.applyai.applyai.service.IApplicationService;
 
 import jakarta.validation.Valid;
@@ -61,7 +62,9 @@ public class ApplicationController {
     }
 
     @PostMapping("/{id}/generate")
-    public ResponseEntity<ApplicationResponse> generateApplication(@PathVariable Long id) {
-        return ResponseEntity.ok(applicationService.generateApplication(id));
+    public ResponseEntity<Void> generateApplication(@PathVariable Long id) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        applicationService.generateApplication(id, userId);
+        return ResponseEntity.accepted().build();
     }
 }
