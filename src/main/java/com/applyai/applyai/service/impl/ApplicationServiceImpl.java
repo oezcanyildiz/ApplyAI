@@ -2,6 +2,7 @@ package com.applyai.applyai.service.impl;
 
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.applyai.applyai.dto.request.CreateApplicationRequest;
@@ -11,6 +12,8 @@ import com.applyai.applyai.entity.Application;
 import com.applyai.applyai.entity.Document;
 import com.applyai.applyai.entity.User;
 import com.applyai.applyai.enums.ApplicationStatus;
+import com.applyai.applyai.enums.DocumentType;
+import com.applyai.applyai.enums.FileFormat;
 import com.applyai.applyai.exception.BadRequestException;
 import com.applyai.applyai.exception.NotFoundException;
 import com.applyai.applyai.mapper.ApplicationMapper;
@@ -19,8 +22,11 @@ import com.applyai.applyai.repository.DocumentRepository;
 import com.applyai.applyai.repository.UserRepository;
 import com.applyai.applyai.security.SecurityUtil;
 import com.applyai.applyai.service.AiService;
+import com.applyai.applyai.service.ContentParserService;
+import com.applyai.applyai.service.DocxGeneratorService;
 import com.applyai.applyai.service.IApplicationService;
 import com.applyai.applyai.service.PdfExtractorService;
+import com.applyai.applyai.service.ProgressNotifierService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +42,9 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final DocumentRepository documentRepository;
     private final PdfExtractorService pdfExtractorService;
     private final AiService aiService;
+    private final ContentParserService contentParserService;
+    private final DocxGeneratorService docxGeneratorService;
+    private final ProgressNotifierService progressNotifierService;
     
     public ApplicationServiceImpl(
             ApplicationRepository applicationRepository,
@@ -43,8 +52,10 @@ public class ApplicationServiceImpl implements IApplicationService {
             ApplicationMapper applicationMapper,
             DocumentRepository documentRepository,
             PdfExtractorService pdfExtractorService,
-        AiService aiService
-
+            AiService aiService,
+            ContentParserService contentParserService,
+            DocxGeneratorService docxGeneratorService,
+            ProgressNotifierService progressNotifierService
         
         ) {
         this.applicationRepository = applicationRepository;
@@ -53,6 +64,9 @@ public class ApplicationServiceImpl implements IApplicationService {
         this.documentRepository = documentRepository;
         this.pdfExtractorService = pdfExtractorService;
         this.aiService = aiService;
+        this.contentParserService=contentParserService;
+        this.docxGeneratorService=docxGeneratorService;
+        this.progressNotifierService=progressNotifierService;
     }
 
     @Transactional
@@ -152,35 +166,69 @@ public class ApplicationServiceImpl implements IApplicationService {
         applicationRepository.delete(application);
     }
 
+    @Async
     @Transactional
-    @Override
-    public ApplicationResponse generateApplication(Long id) {
-        Long userId = SecurityUtil.getCurrentUserId();
-        
-        // 1. Application holen
+    public void generateApplication(Long id, Long userId) {
         Application application = findApplicationByIdAndUserId(id, userId);
-        
-        // 2. Resume Text extrahieren
+
+        progressNotifierService.sendProgress(id, "STARTED", "Generierung gestartet...");
+
         if (application.getResumeDocument() == null) {
+            progressNotifierService.sendProgress(id, "FAILED", "Kein Lebenslauf hinterlegt!");
             throw new BadRequestException("No resume document attached to this application!");
         }
+
+        progressNotifierService.sendProgress(id, "EXTRACTING", "Lese Lebenslauf...");
         String resumeText = pdfExtractorService.extractTextFromPdf(
                 application.getResumeDocument().getFilePath());
-        
-        // 3. Claude API aufrufen
-        String aiResult = aiService.generateApplicationDocuments(
-                resumeText,
-                application.getJobPostingText(),
-                application.getCoverLetterTemplate());
-        
-        // 4. Ergebnis speichern ← NEU
+
+        progressNotifierService.sendProgress(id, "ASKING_AI", "Frage KI nach Optimierung...");
+        String aiResult;
+        try {
+            aiResult = aiService.generateApplicationDocuments(
+                    resumeText,
+                    application.getJobPostingText(),
+                    application.getCoverLetterTemplate());
+        } catch (Exception e) {
+            progressNotifierService.sendProgress(id, "FAILED", "KI-Anfrage fehlgeschlagen!");
+            throw e;
+        }
+
         application.setGeneratedContent(aiResult);
+
+        progressNotifierService.sendProgress(id, "PARSING", "Verarbeite KI-Antwort...");
+        String resumeContent = contentParserService.extractResume(aiResult);
+        String coverLetterContent = contentParserService.extractCoverLetter(aiResult);
+
+        progressNotifierService.sendProgress(id, "GENERATING_DOCX", "Erstelle Dokumente...");
+        String resumeDocxPath = docxGeneratorService.generateDocx(
+                resumeContent, "Lebenslauf_" + application.getCompanyName(), userId);
+        String coverLetterDocxPath = docxGeneratorService.generateDocx(
+                coverLetterContent, "Anschreiben_" + application.getCompanyName(), userId);
+
+        Document generatedResume = new Document();
+        generatedResume.setFileName("Lebenslauf_" + application.getCompanyName() + ".docx");
+        generatedResume.setFilePath(resumeDocxPath);
+        generatedResume.setDocumentType(DocumentType.GENERATED_RESUME);
+        generatedResume.setFileFormat(FileFormat.WORD);
+        generatedResume.setUser(application.getUser());
+        generatedResume.setApplication(application);
+        documentRepository.save(generatedResume);
+
+        Document generatedCoverLetter = new Document();
+        generatedCoverLetter.setFileName("Anschreiben_" + application.getCompanyName() + ".docx");
+        generatedCoverLetter.setFilePath(coverLetterDocxPath);
+        generatedCoverLetter.setDocumentType(DocumentType.GENERATED_COVER_LETTER);
+        generatedCoverLetter.setFileFormat(FileFormat.WORD);
+        generatedCoverLetter.setUser(application.getUser());
+        generatedCoverLetter.setApplication(application);
+        documentRepository.save(generatedCoverLetter);
+
         application.setStatus(ApplicationStatus.APPLIED);
         applicationRepository.save(application);
-        
+
         log.info("AI generation completed for applicationId: {}", id);
-        
-        return applicationMapper.toResponse(application);
+        progressNotifierService.sendProgress(id, "DONE", "Fertig! Dokumente sind bereit.");
     }
 
 
