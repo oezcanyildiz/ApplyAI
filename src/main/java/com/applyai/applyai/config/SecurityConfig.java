@@ -33,7 +33,14 @@ public class SecurityConfig {
 
             // Welche Endpoints brauchen kein Login?
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
                 .anyRequest().authenticated())
 
             // Unseren JWT Filter VOR den Standard-Auth-Filter setzen
