@@ -39,4 +39,9 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, status);
     }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponse> handleTooManyRequests(TooManyRequestsException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
+    }
 }
