@@ -16,6 +16,7 @@ import com.applyai.applyai.enums.DocumentType;
 import com.applyai.applyai.enums.FileFormat;
 import com.applyai.applyai.exception.BadRequestException;
 import com.applyai.applyai.exception.NotFoundException;
+import com.applyai.applyai.exception.TooManyRequestsException;
 import com.applyai.applyai.mapper.ApplicationMapper;
 import com.applyai.applyai.repository.ApplicationRepository;
 import com.applyai.applyai.repository.DocumentRepository;
@@ -27,6 +28,7 @@ import com.applyai.applyai.service.DocxGeneratorService;
 import com.applyai.applyai.service.IApplicationService;
 import com.applyai.applyai.service.PdfExtractorService;
 import com.applyai.applyai.service.ProgressNotifierService;
+import com.applyai.applyai.service.RateLimiterService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +47,7 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final ContentParserService contentParserService;
     private final DocxGeneratorService docxGeneratorService;
     private final ProgressNotifierService progressNotifierService;
+    private final RateLimiterService rateLimiterService;
     
     public ApplicationServiceImpl(
             ApplicationRepository applicationRepository,
@@ -55,7 +58,8 @@ public class ApplicationServiceImpl implements IApplicationService {
             AiService aiService,
             ContentParserService contentParserService,
             DocxGeneratorService docxGeneratorService,
-            ProgressNotifierService progressNotifierService
+            ProgressNotifierService progressNotifierService,
+            RateLimiterService rateLimiterService
         
         ) {
         this.applicationRepository = applicationRepository;
@@ -67,6 +71,7 @@ public class ApplicationServiceImpl implements IApplicationService {
         this.contentParserService=contentParserService;
         this.docxGeneratorService=docxGeneratorService;
         this.progressNotifierService=progressNotifierService;
+        this.rateLimiterService=rateLimiterService;
     }
 
     @Transactional
@@ -169,6 +174,12 @@ public class ApplicationServiceImpl implements IApplicationService {
     @Async
     @Transactional
     public void generateApplication(Long id, Long userId) {
+
+        if (!rateLimiterService.tryConsume(userId)) {
+            progressNotifierService.sendProgress(id, "FAILED", "Limit erreicht. Bitte später erneut versuchen.");
+            throw new TooManyRequestsException("Rate limit exceeded. Maximum 5 generations per hour.");
+        }
+
         Application application = findApplicationByIdAndUserId(id, userId);
 
         progressNotifierService.sendProgress(id, "STARTED", "Generierung gestartet...");
