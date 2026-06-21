@@ -39,10 +39,16 @@ public class FileStorageService {
         if (file.getSize() > 10 * 1024 * 1024) {
             throw new BadRequestException("File size must be less than 10MB");
         }
+
         String originalFileName = file.getOriginalFilename();
         if (originalFileName == null || originalFileName.isBlank()) {
             throw new BadRequestException("File name cannot be empty");
         }
+        String extension = originalFileName.contains(".")
+                ? originalFileName.substring(originalFileName.lastIndexOf("."))
+                : "";
+        String uniqueFileName = UUID.randomUUID() + extension;
+
 
         // 2. Erst DANN Ordner erstellen und Datei speichern
         Path userDir = uploadPath.resolve("user-" + userId);
@@ -52,7 +58,6 @@ public class FileStorageService {
             throw new RuntimeException("Could not create user directory!");
         }
 
-        String uniqueFileName = UUID.randomUUID() + "-" + originalFileName;
         Path targetPath = userDir.resolve(uniqueFileName);
         try {
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
