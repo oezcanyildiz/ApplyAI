@@ -22,7 +22,7 @@ public class DocxGeneratorService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public String generateDocx(String content, String title, Long userId) {
+    public GeneratedDocument generateDocx(String content, String title, Long userId) {
         log.info("Generating DOCX for userId: {}, title: {}", userId, title);
 
         try (XWPFDocument document = new XWPFDocument()) {
@@ -57,7 +57,7 @@ public class DocxGeneratorService {
             }
 
             log.info("DOCX generated successfully: {}", targetPath);
-            return targetPath.toString();
+            return new GeneratedDocument( targetPath.toString() ,Files.size(targetPath) );
 
         } catch (IOException e) {
             log.error("Failed to generate DOCX", e);
