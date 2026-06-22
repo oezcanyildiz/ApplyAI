@@ -25,6 +25,7 @@ import com.applyai.applyai.security.SecurityUtil;
 import com.applyai.applyai.service.AiService;
 import com.applyai.applyai.service.ContentParserService;
 import com.applyai.applyai.service.DocxGeneratorService;
+import com.applyai.applyai.service.GeneratedDocument;
 import com.applyai.applyai.service.IApplicationService;
 import com.applyai.applyai.service.PdfExtractorService;
 import com.applyai.applyai.service.ProgressNotifierService;
@@ -212,14 +213,17 @@ public class ApplicationServiceImpl implements IApplicationService {
         String coverLetterContent = contentParserService.extractCoverLetter(aiResult);
 
         progressNotifierService.sendProgress(id, "GENERATING_DOCX", "Erstelle Dokumente...");
-        String resumeDocxPath = docxGeneratorService.generateDocx(
+     
+        GeneratedDocument resumeDocxPath = docxGeneratorService.generateDocx(
                 resumeContent, "Lebenslauf_" + application.getCompanyName(), userId);
-        String coverLetterDocxPath = docxGeneratorService.generateDocx(
+        GeneratedDocument coverLetterDocxPath = docxGeneratorService.generateDocx(
                 coverLetterContent, "Anschreiben_" + application.getCompanyName(), userId);
-
+        
+  
         Document generatedResume = new Document();
         generatedResume.setFileName("Lebenslauf_" + application.getCompanyName() + ".docx");
-        generatedResume.setFilePath(resumeDocxPath);
+        generatedResume.setFilePath(resumeDocxPath.filePath());
+        generatedResume.setFileSize(resumeDocxPath.fileSize());
         generatedResume.setDocumentType(DocumentType.GENERATED_RESUME);
         generatedResume.setFileFormat(FileFormat.WORD);
         generatedResume.setUser(application.getUser());
@@ -228,7 +232,8 @@ public class ApplicationServiceImpl implements IApplicationService {
 
         Document generatedCoverLetter = new Document();
         generatedCoverLetter.setFileName("Anschreiben_" + application.getCompanyName() + ".docx");
-        generatedCoverLetter.setFilePath(coverLetterDocxPath);
+        generatedCoverLetter.setFilePath(coverLetterDocxPath.filePath());
+        generatedCoverLetter.setFileSize(coverLetterDocxPath.fileSize());
         generatedCoverLetter.setDocumentType(DocumentType.GENERATED_COVER_LETTER);
         generatedCoverLetter.setFileFormat(FileFormat.WORD);
         generatedCoverLetter.setUser(application.getUser());
