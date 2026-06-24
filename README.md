@@ -1,216 +1,169 @@
 # 🚀 ApplyAI
 
-> **AI-powered job application generator & tracker**  
-> Built with Java 21 · Spring Boot 3.4 · PostgreSQL · Kubernetes · Claude AI
+> **KI-gestützter Bewerbungsmappe-Generator**  
+> Java 21 · Spring Boot 3.5 · PostgreSQL · Claude AI · Docker
 
 [![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=java)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-brightgreen?style=flat-square&logo=springboot)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen?style=flat-square&logo=springboot)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-deployed-326CE5?style=flat-square&logo=kubernetes)](https://kubernetes.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-
----
-
-## 💡 Why ApplyAI?
-
-After **150+ job applications** and countless hours manually tailoring CVs and cover letters, I built the tool I wished existed.
-
-**ApplyAI** takes your resume, reads the job posting, and generates a fully tailored, professional application package in seconds — powered by Claude AI.
-
----
-
-## ✨ Features
-
-### 📄 AI Application Generator
-- Upload your resume (PDF)
-- Paste a job posting or provide a link
-- Claude AI analyzes the job requirements and tailors your resume
-- Generates a personalized cover letter
-- Downloads a complete, professional application package as PDF
-- **Live progress updates via WebSocket**
-
-### 📊 Application Tracker
-- Every generated application is automatically saved
-- Track status: `Applied` → `Interview` → `Offer / Rejected`
-- Manage contacts, dates, and documents in one place
-- Dashboard with statistics and insights
-- Real-time notifications via WebSocket
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Java 21, Spring Boot 3.4 |
-| **Security** | Spring Security, JWT, RBAC |
-| **Database** | PostgreSQL 16, Hibernate/JPA |
-| **Real-time** | WebSocket (STOMP) |
-| **AI** | Claude API (Anthropic) |
-| **PDF** | Apache PDFBox, iText |
-| **Frontend** | React, TypeScript, Tailwind CSS |
-| **DevOps** | Docker, Docker Compose |
-| **Orchestration** | Kubernetes (K8s) |
-| **Cloud** | AWS / GCP |
-| **CI/CD** | GitHub Actions |
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────┐
-│                  API Gateway                     │
-└────────────────────┬────────────────────────────┘
-                     │
-        ┌────────────┼────────────┐
-        │            │            │
-   ┌────▼────┐  ┌────▼────┐  ┌───▼─────┐
-   │  Auth   │  │Document │  │  AI     │
-   │ Service │  │ Service │  │ Service │
-   └─────────┘  └────┬────┘  └───┬─────┘
-                     │           │
-                ┌────▼───────────▼────┐
-                │    PDF Generator    │
-                └─────────────────────┘
-                     │
-              ┌──────▼──────┐
-              │   Tracker   │
-              │   Service   │
-              └─────────────┘
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Java 21+
-- Docker & Docker Compose
-- Maven 3.9+
-
-### Run locally
-
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/applyai.git
-cd applyai
-
-# Start PostgreSQL with Docker
-docker-compose up -d postgres
-
-# Run the application
-./mvnw spring-boot:run
-```
-
-### Run with Docker Compose (full stack)
-
-```bash
-docker-compose up --build
-```
-
-The application will be available at `http://localhost:8080`
-
----
-
-## 📁 Project Structure
-
-```
-applyai/
-├── auth-service/          # Authentication & JWT
-├── document-service/      # PDF upload & text extraction
-├── ai-service/            # Claude API integration
-├── pdf-generator/         # Application package generation
-├── tracker-service/       # Application tracking & notifications
-├── api-gateway/           # Routing & load balancing
-├── frontend/              # React + TypeScript UI
-├── k8s/                   # Kubernetes manifests
-├── .github/workflows/     # CI/CD pipelines
-└── docker-compose.yml
-```
-
----
-
-## 📈 Development Progress
-
-> 🔨 Currently in active development — built in public!
-
-| Week | Goal | Status |
-|------|------|--------|
-| Week 1 | Project setup, Auth Service, CI/CD | 🔨 In Progress |
-| Week 2 | Document Service, Claude AI Integration | ⏳ Planned |
-| Week 3 | PDF Generator, Tracker Service, Frontend | ⏳ Planned |
-| Week 4 | Kubernetes Deployment, Cloud, Polish | ⏳ Planned |
-
-Follow my daily progress on [LinkedIn](https://www.linkedin.com/in/ozcanyildiz-de/) 📣
-
----
-
-## 🤝 Contributing
-
-This is a personal portfolio project, but feedback and suggestions are always welcome!  
-Feel free to open an issue or reach out on LinkedIn.
-
----
-
-## 👨‍💻 Author
-
-**Ozcan Yildiz** — Junior Backend Developer  
-📧 oezcan.yildiz95@gmail.com  
-🔗 [LinkedIn](https://www.linkedin.com/in/ozcanyildiz-de/)  
-🌐 [boardly.one](https://boardly.one)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-<p align="center">
-  <i>Built with ❤️ and 150 rejections.</i>
-</p>
-
-
----
-
-## 🇩🇪 Deutsche Version
-
-# 🚀 ApplyAI
-
-> **KI-gestützter Bewerbungsmappe-Generator & Bewerbungs-Tracker**  
-> Entwickelt mit Java 21 · Spring Boot 3.4 · PostgreSQL · Kubernetes · Claude AI
 
 ---
 
 ## 💡 Warum ApplyAI?
 
-Nach über **150 Bewerbungen** und unzähligen Stunden damit, Lebensläufe und 
-Anschreiben manuell anzupassen, habe ich das Tool gebaut, das ich mir gewünscht hätte.
+Nach über **150 Bewerbungen** und unzähligen Stunden damit, Lebensläufe und Anschreiben manuell anzupassen, habe ich das Tool gebaut, das ich mir gewünscht hätte.
 
-**ApplyAI** liest deinen Lebenslauf, analysiert die Stellenanzeige und erstellt 
-in Sekunden eine vollständig maßgeschneiderte Bewerbungsmappe – powered by Claude AI.
+**ApplyAI** liest deinen Lebenslauf (PDF), analysiert die Stellenanzeige und erstellt in unter 20 Sekunden eine maßgeschneiderte Bewerbungsmappe als Word-Dokument — powered by Claude AI.
+
+> ⚠️ **Hinweis:** ApplyAI ist ein **Backend-fokussiertes Portfolio-Projekt**. Es gibt bewusst kein eigenes Frontend — ich bin Backend-Entwickler und möchte das ehrlich zeigen. Die API ist vollständig über **Swagger/OpenAPI** dokumentiert und testbar.
 
 ---
 
-## ✨ Funktionen
+## ✨ Was ApplyAI kann
 
-### 📄 KI Bewerbungsmappe Generator
-- Lebenslauf (PDF) hochladen
-- Stellenanzeige einfügen oder Link angeben
-- Claude AI analysiert die Anforderungen und passt deinen Lebenslauf an
-- Generiert ein personalisiertes Anschreiben
-- Lädt eine komplette, professionelle Bewerbungsmappe als PDF herunter
-- **Live-Fortschritt via WebSocket**
+- 📄 **Lebenslauf hochladen** (PDF oder Word)
+- 📋 **Stellenanzeige einfügen** (Freitext)
+- 🤖 **Claude AI** analysiert beide Dokumente und optimiert den Lebenslauf für die Stelle
+- 📝 **Maßgeschneidertes Anschreiben** wird automatisch generiert
+- 📥 **Download als .docx** — direkt einsendefertig
+- 📡 **Live-Fortschritt via WebSocket** — kein stilles Warten während die KI arbeitet
+- 🔒 **Rate-Limiting** — max. 5 Generierungen pro Stunde pro User (Kostenschutz)
 
-### 📊 Bewerbungs-Tracker
-- Jede generierte Bewerbung wird automatisch gespeichert
-- Status verfolgen: `Beworben` → `Gespräch` → `Zusage / Absage`
-- Ansprechpartner, Termine und Dokumente an einem Ort
-- Dashboard mit Statistiken
-- Echtzeit-Benachrichtigungen via WebSocket
+---
+
+## 📊 Messbare Werte
+
+| Metrik | Wert |
+|--------|------|
+| Generierungszeit | ~20 Sekunden |
+| Kosten pro Generierung | ~0,01 € (Claude API) |
+| Rate-Limit | 5 Anfragen / Stunde / User |
+| API Endpoints | vollständig via Swagger dokumentiert |
+
+---
+
+## 🛠️ Tech Stack
+
+| Bereich | Technologie |
+|---------|------------|
+| **Backend** | Java 21, Spring Boot 3.5 |
+| **Security** | Spring Security, JWT, RBAC |
+| **Datenbank** | PostgreSQL 16, Hibernate/JPA |
+| **KI** | Claude API (Anthropic) |
+| **PDF** | Apache PDFBox 3.x (Textextraktion) |
+| **DOCX** | Apache POI (Dokumentgenerierung) |
+| **Real-time** | WebSocket (STOMP) |
+| **Rate-Limiting** | Bucket4j |
+| **API-Doku** | Swagger / OpenAPI (springdoc) |
+| **DevOps** | Docker, Docker Compose |
+| **Deployment** | Kubernetes (geplant), Azure (geplant) |
+| **CI/CD** | GitHub Actions (geplant) |
+
+---
+
+## 🏗️ Architektur & Flow
+
+```
+POST /api/applications/{id}/generate
+        │
+        ▼
+ApplicationService (orchestriert den Flow)
+        │
+        ├── 1. PdfExtractorService (PDFBox)
+        │       → Text aus Lebenslauf-PDF extrahieren
+        │
+        ├── 2. AiService (Claude API)
+        │       → Prompt bauen + Claude aufrufen
+        │       → ~20 Sekunden, ~0,01€ pro Anfrage
+        │
+        ├── 3. ContentParserService
+        │       → [OPTIMIERTER_LEBENSLAUF] und [ANSCHREIBEN] aus KI-Antwort extrahieren
+        │
+        ├── 4. DocxGeneratorService (Apache POI)
+        │       → Zwei .docx Dateien erstellen
+        │
+        └── 5. Document Entities in DB speichern
+                → User kann Dokumente herunterladen
+```
+
+> Alle Schritte laufen **asynchron** (`@Async`) und senden **Live-Updates** via WebSocket (STOMP) an den Client.
+
+---
+
+## 🚀 Lokal starten
+
+### Voraussetzungen
+- Java 21+
+- Docker & Docker Compose
+- Maven 3.9+
+- Claude API Key ([console.anthropic.com](https://console.anthropic.com))
+
+### Setup
+
+```bash
+# Repository klonen
+git clone https://github.com/oezcanyildiz/ApplyAI.git
+cd ApplyAI
+
+# .env Datei erstellen (Vorlage: .env.example)
+cp .env.example .env
+# CLAUDE_API_KEY, DB-Credentials etc. eintragen
+
+# PostgreSQL starten
+docker-compose up -d
+
+# Anwendung starten
+./mvnw spring-boot:run
+```
+
+### API testen
+
+Swagger UI ist unter folgendem Link erreichbar:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+---
+
+## 📁 Projektstruktur
+
+```
+applyai/
+├── src/main/java/com/applyai/applyai/
+│   ├── controller/        # REST Endpoints
+│   ├── service/           # Business-Logik
+│   │   ├── impl/          # Service-Implementierungen
+│   │   ├── AiService      # Claude API Integration
+│   │   ├── PdfExtractorService
+│   │   ├── DocxGeneratorService
+│   │   ├── ContentParserService
+│   │   └── RateLimiterService
+│   ├── entity/            # JPA Entities
+│   ├── repository/        # Spring Data Repositories
+│   ├── security/          # JWT, AuthenticatedUser, Filter
+│   ├── config/            # Spring, WebSocket Konfiguration
+│   ├── dto/               # Request/Response DTOs
+│   ├── mapper/            # Entity ↔ DTO Mapping
+│   └── exception/         # Custom Exceptions + GlobalExceptionHandler
+├── docker-compose.yml
+└── .env.example
+```
+
+---
+
+## 📈 Entwicklungsfortschritt
+
+> 🔨 Aktiv in Entwicklung — täglich auf LinkedIn dokumentiert unter [#BuildInPublic](https://www.linkedin.com/in/ozcanyildiz-de/)
+
+| Phase | Inhalt | Status |
+|-------|--------|--------|
+| Woche 1 | Setup, Auth, Application CRUD, Document Upload | ✅ Fertig |
+| Woche 2 | Claude AI Integration, WebSocket, Swagger, Security-Hardening | ✅ Fertig |
+| Woche 3 | Kubernetes, Docker Compose, Azure Deployment | 🔨 In Arbeit |
+| Woche 4 | CI/CD, Tests, Polish | ⏳ Geplant |
 
 ---
 
@@ -219,7 +172,13 @@ in Sekunden eine vollständig maßgeschneiderte Bewerbungsmappe – powered by C
 **Ozcan Yildiz** — Junior Backend-Entwickler  
 📧 oezcan.yildiz95@gmail.com  
 🔗 [LinkedIn](https://www.linkedin.com/in/ozcanyildiz-de/)  
-🌐 [boardly.one](https://boardly.one)
+💻 [GitHub](https://github.com/oezcanyildiz)
+
+---
+
+## 📄 Lizenz
+
+MIT License — siehe [LICENSE](LICENSE)
 
 ---
 

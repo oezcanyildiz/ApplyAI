@@ -3,7 +3,7 @@ services:
     image: 'postgres:16'
     environment:
       - 'POSTGRES_DB=applyai'
-      - 'POSTGRES_PASSWORD=applyai123'
-      - 'POSTGRES_USER=applyai'
+      - 'POSTGRES_USER=${DB_USERNAME}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
     ports:
       - '5432:5432'
